@@ -1,0 +1,126 @@
+private void BTNadicionar_Click(object sender, EventArgs e)
+{
+    GetHorariosAdicionar().Nome = Nome;
+    sala = CMBsalas.Text;
+    GetHorariosAdicionar().ShowDialog();
+
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+       private void BTNremover_Click(object sender, EventArgs e)
+        {
+            sala = CMBsalas.Text;
+            GetHorariosRemover().Nome = Nome;
+            GetHorariosRemover().ShowDialog();
+
+        }
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+private void BTNlimparhorario_Click(object sender, EventArgs e)
+{
+    sala = CMBsalas.Text;
+    if (MessageBox.Show("Tem a certeza que quer eliminar o horário dessa sala?", "Informação", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
+    {
+        if (MessageBox.Show("Confirmação: Confirma eliminar a sala " + CMBsalas.Text + "? Não será possivel reverter essa ação!", "Informação", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
+        {
+
+            string query_movimentos = "INSERT INTO Movimentos (tipo_movimento, Detalhes, funcionario, data) VALUES (@tipo_movimento, @detalhes, @funcionario, @data)";
+            SqlCommand command_movimentos = new SqlCommand(query_movimentos, Program.TSqlConnect.TConnection);
+            command_movimentos.Parameters.AddWithValue("@tipo_movimento", "Eliminar Horário de Sala");
+            command_movimentos.Parameters.AddWithValue("@detalhes", "O horário da sala \"" + CMBsalas.Text + "\" foi eliminada.");
+            command_movimentos.Parameters.AddWithValue("@funcionario", Nome);
+            command_movimentos.Parameters.AddWithValue("@data", DateTime.Now);
+
+            command_movimentos.ExecuteNonQuery();
+            mostrar_movimentos();
+
+
+            string sql = @"DELETE horarios FROM horarios
+                  INNER JOIN Salas ON horarios.SalaID = Salas.SalaID
+                  WHERE Salas.NomeSala LIKE @SalaNome";
+
+            SqlCommand cmd = new SqlCommand(sql, Program.TSqlConnect.TConnection);
+
+            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.AddWithValue("@SalaNome", CMBsalas.Text);
+
+
+
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("O horário dessa sala foi limpado com sucesso!", "INFORMAÇÃO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (SqlException ex)
+            {
+                MessageBox.Show("O horário dessa sala não removido devido a um problema:\n " + ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            mostrar_horarios();
+            horariosremover.mostrar_tabela_horarios();
+        }
+    }
+}
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+private void BTNfimanoletivo_Click(object sender, EventArgs e)
+{
+    if (MessageBox.Show("Tem a certeza que quer eliminar TODOS os horários?", "Informação", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
+    {
+        if (MessageBox.Show("Confirmação: Esta ação não será reversivel! Tem mesmo a certeza?", "Informação", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning) == DialogResult.Yes)
+        {
+            string query_movimentos = "INSERT INTO Movimentos (tipo_movimento, Detalhes, funcionario, data) VALUES (@tipo_movimento, @detalhes, @funcionario, @data)";
+            SqlCommand command_movimentos = new SqlCommand(query_movimentos, Program.TSqlConnect.TConnection);
+            command_movimentos.Parameters.AddWithValue("@tipo_movimento", "Terminar Ano Letivo");
+            command_movimentos.Parameters.AddWithValue("@detalhes", "Os horários de todas as salas foram eliminados pelo ano letivo ter terminado");
+            command_movimentos.Parameters.AddWithValue("@funcionario", Nome);
+            command_movimentos.Parameters.AddWithValue("@data", DateTime.Now);
+
+            command_movimentos.ExecuteNonQuery();
+            mostrar_movimentos();
+
+
+            string sql = "TRUNCATE TABLE horarios";
+
+            SqlCommand cmd = new SqlCommand(sql, Program.TSqlConnect.TConnection);
+
+            cmd.CommandType = CommandType.Text;
+
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Todos os horários foram eliminados com sucesso!", "INFORMAÇÃO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (SqlException ex)
+            {
+                MessageBox.Show("Os horários não foram eliminados devido a um problema:\n " + ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            mostrar_horarios();
+            horariosremover.mostrar_tabela_horarios();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

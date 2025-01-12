@@ -1,0 +1,10 @@
+     public void mostrar_movimentos()
+        {
+            string query = "SELECT id_movimento, tipo_movimento, funcionario,data FROM Movimentos";
+            SqlCommand cmd = new SqlCommand(query, Program.TSqlConnect.TConnection);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+
+            DataTable tbl = new DataTable();
+            da.Fill(tbl);
+            DGV_Movimentos.DataSource = tbl;
+        }

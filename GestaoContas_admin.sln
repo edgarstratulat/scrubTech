@@ -1,0 +1,59 @@
+private void DGV_contas_CellClick(object sender, DataGridViewCellEventArgs e)
+{
+    if (e.ColumnIndex == 0)
+    {
+        GetAdicionarContas().id = DGV_contas.Rows[e.RowIndex].Cells[2].Value.ToString();
+        GetAdicionarContas().tipo = "Atualizar";
+        GetAdicionarContas().nome = Nome;
+        GetAdicionarContas().ShowDialog();
+
+
+    }
+    else if (e.ColumnIndex == 1)
+    {
+
+
+
+
+        if (MessageBox.Show("Tem a certeza que quer eliminar a conta?", "Informação", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information) == DialogResult.Yes)
+        {
+            string nome = DGV_contas.Rows[e.RowIndex].Cells[3].Value.ToString();
+            string email = DGV_contas.Rows[e.RowIndex].Cells[4].Value.ToString();
+
+            string query_movimentos = "INSERT INTO Movimentos (tipo_movimento, Detalhes, funcionario, data) VALUES (@tipo_movimento, @detalhes, @funcionario, @data)";
+            SqlCommand command_movimentos = new SqlCommand(query_movimentos, Program.TSqlConnect.TConnection);
+            command_movimentos.Parameters.AddWithValue("@tipo_movimento", "Eliminar Conta");
+            command_movimentos.Parameters.AddWithValue("@detalhes", "Foi eliminada a conta com o nome \"" + nome + "\" e email \"" + email + "\"");
+            command_movimentos.Parameters.AddWithValue("@funcionario", Nome);
+            command_movimentos.Parameters.AddWithValue("@data", DateTime.Now);
+
+            command_movimentos.ExecuteNonQuery();
+
+            mostrar_movimentos();
+
+            string sql = "DELETE FROM login WHERE id_login=@id";
+
+
+            SqlCommand cmd = new SqlCommand(sql, Program.TSqlConnect.TConnection);
+            cmd.CommandType = CommandType.Text;
+
+
+
+            cmd.Parameters.Add("@id", SqlDbType.VarChar).Value = DGV_contas.Rows[e.RowIndex].Cells[2].Value.ToString();
+
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("A conta foi eliminado com sucesso!", "INFORMAÇÃO", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            catch (SqlException ex)
+            {
+                MessageBox.Show("A conta não foi eliminado devido a um erro:!\n " + ex.Message, "ERRO", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            mostrar_contas();
+        }
+    }
+}

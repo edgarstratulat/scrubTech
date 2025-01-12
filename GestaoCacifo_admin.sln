@@ -1,0 +1,5 @@
+        private void BTNadicionarcacifo_Click(object sender, EventArgs e)
+        {
+            GetAdicionarCacifo().tipo = "cacifos";
+            GetAdicionarCacifo().Nome = Nome;
+            GetAdicionarCacifo().ShowDialog();
